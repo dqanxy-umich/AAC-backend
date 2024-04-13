@@ -11,7 +11,6 @@ def test():
 def page_not_found(error):
     return '404 Not Found', 404
 
-#make token request to Gemini and return next copilot
 @app.route('/copilot')
 def copilot(user_input, input_path):
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
@@ -21,6 +20,18 @@ def copilot(user_input, input_path):
   result_string = (response_final.text).replace(f'...{user_input}', "")
   result_string = (response_final.text).replace(f'... {user_input}', "")
   return result_string
+
+#make function to predict one word output/categorization
+@app.route('/face-predict')
+def predict_face_mood(input_file):
+  model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
+  new_up = genai.upload_file(path=input_file)
+  prompt_final = "Describe the person's facial expression. Give one word response, not generic."
+  response_final = model.generate_content([new_up, prompt_final], stream = False)
+  print(response_final.text)
+  return response_final.text
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
