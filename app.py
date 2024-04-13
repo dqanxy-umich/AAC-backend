@@ -9,6 +9,8 @@ import cv2
 import sys
 import logging
 import helper
+import base64
+
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
@@ -157,15 +159,21 @@ def suggest_responses():
     # Example User instance
     user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
 
-    # audio input 
     audio_path = 'audio/sample_turn2.wav'# get_recording()
-    audio_file = genai.upload_file(path=audio_path)
+
+    with open(audio_path, "rb") as wav_file:
+        wav_bytes = wav_file.read()
+        base64_bytes = base64.b64encode(wav_bytes)
+        encoded_string = base64_bytes.decode("utf-8")
+
+    # audio input 
+    # audio_file = genai.upload_file(path=audio_path)
 
     # build instruction based on user data
     instruction = helper.build_instruction(user, 10)
     
     # generate HTTP request, retrieve model response
-    responses = helper.gemini_request(User, instruction, APIKEY)
+    responses = helper.gemini_request(User, instruction, encoded_string, APIKEY)
 
     return responses
 

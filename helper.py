@@ -46,13 +46,17 @@ def build_instruction(User, num_responses):
 
     return instruction
 
-def gemini_request(User, instruction, APIKEY):
+def gemini_request(User, instruction, encoded_string, APIKEY):
     headers = {
         'Content-Type': 'application/json',
     }
     prompt = "Return a list of phrases that can be used in response to the conversational input using this JSON schema:\n                  {type: object, properties: { phrase: {type: string}}}"
-    user = {"role":"user", "parts":[{ "text": prompt}]}
-
+    user = {"role":"user", "parts":[{"text": prompt},
+                { "inlineData": {
+                    "mimeType": "audio/wav",
+                    "data": encoded_string
+                  }
+                }]}
     # Add current prompt to the users conversation list, then generate contents
     User.conversation.append[user]
     contents = User.conversation
