@@ -9,11 +9,14 @@ import cv2
 import sys
 import logging
 import helper
+from flask_cors import CORS, cross_origin
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/test')
 def test():
@@ -24,6 +27,7 @@ def page_not_found(error):
     return '404 Not Found', 404
 
 @app.route('/copilot')
+@cross_origin()
 def copilot():
   user_input = "I agree! Let's"
   input_path = get_recording()
@@ -37,7 +41,7 @@ def copilot():
 
 #make function to predict one word output/categorization
 @app.route('/face-predict')
-def predict_face_mood():
+def face_predict():
   input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/images/frown.jpeg'
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_file)
