@@ -161,22 +161,11 @@ def suggest_responses():
     audio_path = 'audio/sample_turn2.wav'# get_recording()
     audio_file = genai.upload_file(path=audio_path)
 
-    # text input
-    text_input = "what are you doing after school?"
-
-    # prompt and instruction
-    prompt = "Respond to the person speaking to you."
+    # build instruction based on user data
     instruction = helper.build_instruction(user, 10)
-
-    # build model
-    model = genai.GenerativeModel(
-        'models/gemini-1.5-pro-latest',
-        system_instruction=instruction
-    )
-
-    # generate responses on prompt and input, clean them 
-    response = model.generate_content([prompt, audio_file])
-    responses = response.text.replace('\n', '').strip().split(";")
+    
+    # generate HTTP request, retrieve model response
+    responses = helper.gemini_request(User, instruction, APIKEY)
 
     return responses
 
