@@ -52,15 +52,15 @@ def gemini_request(User, instruction, audio_uri, photo_uri, APIKEY):
     }
     prompt = "Return a list of phrases that can be used in response to the conversational input from the audio file. Use the emotion indicated by the facial expression in the photo to guide a few of the responses. Using this JSON schema:\n                  {type: object, properties: { phrase: {type: string}}}"
     user = {"role":"user", "parts":[{"text": prompt},
-                { "fileData": {
+                {"fileData": {
                     "mimeType": "audio/wav",
                     "fileUri": audio_uri
-                  },
-                  "fileData": {
+                  }},
+                  {"fileData": {
                     "mimeType": "image/jpeg",
                     "fileUri": photo_uri
-                  },
-                }]}
+                  }}
+                ]}
     # Add current prompt to the users conversation list, then generate contents
     User.conversation.append(user)
     contents = User.conversation

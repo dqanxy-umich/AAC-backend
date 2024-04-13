@@ -32,7 +32,7 @@ def page_not_found(error):
 @cross_origin(origin="*")
 def copilot():
   user_input= request.args.get('input')
-  input_path = 'audio/sample_turn2.wav'
+  input_path = get_recording();
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_path)
   prompt_final = f"Finish the following after '...': {user_input}..."
@@ -82,7 +82,7 @@ def record_thread():
     global kill_flag
     CHUNK = 1024
     FORMAT = pyaudio.paInt16
-    CHANNELS = 1
+    CHANNELS = 2
     RATE = 44100
     RECORD_SECONDS = 5
     WAVE_OUTPUT_FILENAME = "output.wav"
@@ -134,7 +134,7 @@ def predict_face_mood_2():
 #render camera on spot
 @app.route('/cam-capture')
 def predict_face_vis():
-  camera = cv2.VideoCapture(1)
+  camera = cv2.VideoCapture(0)
   time.sleep(1)
   ret, frame = camera.read()
   camera.release()
