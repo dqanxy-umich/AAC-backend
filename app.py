@@ -37,7 +37,16 @@ def predict_face_mood():
   print(response_final.text)
   return response_final.text
 
-
+#make function to predict one word output/categorization
+@app.route('/video-predict')
+def predict_face_mood():
+  input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/frown.jpeg'
+  model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
+  new_up = genai.upload_file(path=input_file)
+  prompt_final = "Describe the person's facial expression. Give one word response, not generic."
+  response_final = model.generate_content([new_up, prompt_final], stream = False)
+  print(response_final.text)
+  return response_final.text
 
 if __name__ == '__main__':
     app.run(debug=True)
