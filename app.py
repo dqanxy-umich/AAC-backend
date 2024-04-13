@@ -10,12 +10,14 @@ import sys
 import logging
 import helper
 import base64
-
+from flask_cors import CORS, cross_origin
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/test')
 def test():
@@ -26,6 +28,7 @@ def page_not_found(error):
     return '404 Not Found', 404
 
 @app.route('/copilot')
+@cross_origin()
 def copilot():
   user_input = "I agree! Let's"
   input_path = get_recording()
@@ -39,7 +42,7 @@ def copilot():
 
 #make function to predict one word output/categorization
 @app.route('/face-predict')
-def predict_face_mood():
+def face_predict():
   input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/images/frown.jpeg'
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_file)
@@ -154,10 +157,11 @@ def predict_face_vis():
   return response_final.text
 
 # temporary route using python sdk, will switch to JSON using Curl
+#integrate responses with user info
 @app.route('/suggest-responses')
 def suggest_responses():
     # Example User instance
-    user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
+    user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
 
     audio_path = 'audio/sample_turn2.wav'# get_recording()
 
@@ -165,11 +169,10 @@ def suggest_responses():
         wav_bytes = wav_file.read()
         base64_bytes = base64.b64encode(wav_bytes)
         encoded_string = base64_bytes.decode("utf-8")
-
-    # audio input 
-    # audio_file = genai.upload_file(path=audio_path)
-
-    # build instruction based on user data
+        
+    # prompt and instruction
+    # prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}."
+   
     instruction = helper.build_instruction(user, 10)
     
     # generate HTTP request, retrieve model response
