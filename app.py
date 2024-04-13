@@ -28,7 +28,8 @@ def copilot():
 
 #make function to predict one word output/categorization
 @app.route('/face-predict')
-def predict_face_mood(input_file):
+def predict_face_mood():
+  input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/frown.jpeg'
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_file)
   prompt_final = "Describe the person's facial expression. Give one word response, not generic."
