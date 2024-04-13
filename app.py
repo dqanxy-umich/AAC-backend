@@ -161,6 +161,7 @@ def predict_face_vis():
 @app.route('/suggest-responses')
 @cross_origin()
 def suggest_responses():
+    
     # Example User instance
     user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
 
@@ -178,8 +179,59 @@ def suggest_responses():
     
     # generate HTTP request, retrieve model response
     responses = helper.gemini_request(User, instruction, encoded_string, APIKEY)
+    # audio input 
+    #audio_path = 'audio/sample_turn2.wav'# get_recording()
+    #audio_file = genai.upload_file(path=audio_path)
+    audio_file = get_recording() #-> just get the recording
+
+
+    prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}."
+    instruction = helper.build_instruction(user, 10)
+
+    model = genai.GenerativeModel(
+        'models/gemini-1.5-pro-latest',
+        system_instruction=instruction
+    )
+
+    response = model.generate_content([prompt, audio_file])
+    logging.info("got response")
+    responses = response.text.replace('\n', '').strip().split(";")
+    logging.info("split response")
 
     return responses
+
+@app.route('/full-context')
+def gen_full_context():
+    #get visuals
+    opponent_mood = predict_face_vis()
+    #opponent_mood = 'infurious'
+    user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
+
+    # audio input 
+    audio_path = 'audio/sample_turn2.wav'# get_recording()
+    audio_file = genai.upload_file(path=audio_path)
+    #audio_file = get_recording() #-> just get the recording
+
+
+    prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}. Also keep in mind the opposing speaker feels like this: {opponent_mood}"
+    instruction = helper.build_instruction(user, 10)
+
+    model = genai.GenerativeModel(
+        'models/gemini-1.5-pro-latest',
+        system_instruction=instruction
+    )
+
+    response = model.generate_content([prompt, audio_file])
+    logging.info("got response")
+    responses = response.text.replace('\n', '').strip().split(";")
+    logging.info("split response")
+
+    return responses
+
+
+
+    
+
 
 if __name__ == '__main__':
     global kill_flag
