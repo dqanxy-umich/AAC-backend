@@ -21,7 +21,7 @@ def page_not_found(error):
 @app.route('/copilot')
 def copilot():
   user_input = "I agree! Let's"
-  input_path = "sample_turn2.wav"
+  input_path = get_recording()
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_path)
   prompt_final = f"Finish the following after '...': {user_input}..."
@@ -31,8 +31,8 @@ def copilot():
   return result_string
 
 #make function to predict one word output/categorization
-@app.route('/face-predict')
-def predict_face_mood():
+@app.route('/face_predict')
+def face_predict():
   input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/frown.jpeg'
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_file)
@@ -106,6 +106,10 @@ def record_thread():
         write_flag = True
         while write_flag:
             pass
+    
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
 
 
     
