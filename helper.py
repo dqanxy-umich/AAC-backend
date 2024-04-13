@@ -47,9 +47,6 @@ def build_instruction(User, num_responses):
     return instruction
 
 def gemini_request(User, instruction, audio_uri, photo_uri, APIKEY):
-    import requests
-    import json
-
     headers = {
         'Content-Type': 'application/json',
     }
@@ -72,7 +69,6 @@ def gemini_request(User, instruction, audio_uri, photo_uri, APIKEY):
             }
         ]
     }
-    # Add current prompt to the users conversation list, then generate contents
     User.conversation.append(user)
     contents = User.conversation
 
