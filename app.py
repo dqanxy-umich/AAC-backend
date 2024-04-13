@@ -4,6 +4,7 @@ import threading
 import pyaudio
 import wave
 import time
+import cv2
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
@@ -31,9 +32,9 @@ def copilot():
   return result_string
 
 #make function to predict one word output/categorization
-@app.route('/face_predict')
-def face_predict():
-  input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/frown.jpeg'
+@app.route('/face-predict')
+def predict_face_mood():
+  input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/images/frown.jpeg'
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_file)
   prompt_final = "Describe the person's facial expression. Give one word response, not generic."
@@ -117,8 +118,21 @@ def record_thread():
 @app.route('/video-predict')
 def predict_face_mood():
   input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/frown.jpeg'
+#render camera on spot
+@app.route('/cam-capture')
+def predict_face_vis():
+  camera = cv2.VideoCapture(0)
+  ret, frame = camera.read()
+  camera.release()
+  fshape = frame.shape
+  fheight = fshape[0]
+  fwidth = fshape[1]
+  fourcc = cv2.VideoWriter_fourcc(*'XVID')
+  out = cv2.VideoWriter('output.avi',fourcc, 20.0, (fwidth,fheight))
+
+
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
-  new_up = genai.upload_file(path=input_file)
+  new_up = genai.upload_file(path='output.avi')
   prompt_final = "Describe the person's facial expression. Give one word response, not generic."
   response_final = model.generate_content([new_up, prompt_final], stream = False)
   print(response_final.text)
