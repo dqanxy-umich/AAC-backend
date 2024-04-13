@@ -1,23 +1,14 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from flask import Flask
 
-class MyHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/test':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(b'Hello, World!')
-        else:
-            self.send_response(404)
-            self.send_header('Content-type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(b'404 Not Found')
+app = Flask(__name__)
 
-def run():
-    server_address = ('', 8000)
-    httpd = HTTPServer(server_address, MyHandler)
-    print('Server running on http://localhost:8000')
-    httpd.serve_forever()
+@app.route('/test')
+def test():
+    return 'Hello, World!'
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return '404 Not Found', 404
 
 if __name__ == '__main__':
-    run()
+    app.run(debug=True)
