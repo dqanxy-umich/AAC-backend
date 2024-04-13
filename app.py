@@ -30,13 +30,17 @@ def page_not_found(error):
 
 @app.route('/copilot')
 @cross_origin(origin="*")
-def copilot():
+def copilot(useAudio=False):
   user_input= request.args.get('input')
-  input_path = 'audio/sample_turn2.wav'
-  model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
-  new_up = genai.upload_file(path=input_path)
+  model = genai.GenerativeModel('gemini-pro')
   prompt_final = f"Finish the following after '...': {user_input}..."
-  response_final = model.generate_content([new_up, prompt_final])
+  if useAudio:
+    input_path = get_recording();
+    new_up = genai.upload_file(path=input_path)
+    model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
+    response_final = model.generate_content([new_up, prompt_final])
+  else:
+    response_final = model.generate_content(prompt_final)
   result_string = (response_final.text).replace(f'...{user_input}', "")
   result_string = (response_final.text).replace(f'... {user_input}', "")
   result_string = re.sub(r'[^\w\s]','',result_string)
@@ -82,7 +86,7 @@ def record_thread():
     global kill_flag
     CHUNK = 1024
     FORMAT = pyaudio.paInt16
-    CHANNELS = 1
+    CHANNELS = 2
     RATE = 44100
     RECORD_SECONDS = 5
     WAVE_OUTPUT_FILENAME = "output.wav"
@@ -134,7 +138,7 @@ def predict_face_mood_2():
 #render camera on spot
 @app.route('/cam-capture')
 def predict_face_vis():
-  camera = cv2.VideoCapture(1)
+  camera = cv2.VideoCapture(0)
   time.sleep(1)
   ret, frame = camera.read()
   camera.release()
