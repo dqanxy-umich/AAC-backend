@@ -157,10 +157,11 @@ def predict_face_vis():
 def suggest_responses():
     # Example User instance
     user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
-
+    user.end_conversation()
+    # prompt = "Return a list of phrases that can be used in response to the conversational input from the audio file. Use the emotion indicated by the facial expression in the photo to guide a few of the responses. Using this JSON schema:\n                  {type: object, properties: { phrase: {type: string}}}"
     #  'audio/sample_turn2.wav'#
-    audio_path = get_recording()
-    # audio_path = 'audio/sample_turn2.wav' # get_recording()
+    # audio_path = get_recording()
+    audio_path = 'audio/sample_turn2.wav' # get_recording()
     audio_file = genai.upload_file(path=audio_path)
     audio_uri = audio_file.uri
 
@@ -172,7 +173,7 @@ def suggest_responses():
     instruction = helper.build_instruction(user, 10)
     
     # generate HTTP request, retrieve model response
-    responses = helper.gemini_request(User, instruction, audio_uri, photo_uri, APIKEY)
+    responses = helper.gemini_request(user, instruction, audio_uri, photo_uri, APIKEY)
 
     return responses
 
