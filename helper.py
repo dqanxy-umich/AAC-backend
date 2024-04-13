@@ -46,15 +46,15 @@ def build_instruction(User, num_responses):
 
     return instruction
 
-def gemini_request(User, instruction, encoded_string, APIKEY):
+def gemini_request(User, instruction, file_uri, APIKEY):
     headers = {
         'Content-Type': 'application/json',
     }
     prompt = "Return a list of phrases that can be used in response to the conversational input using this JSON schema:\n                  {type: object, properties: { phrase: {type: string}}}"
     user = {"role":"user", "parts":[{"text": prompt},
-                { "inlineData": {
+                { "fileData": {
                     "mimeType": "audio/wav",
-                    "data": encoded_string
+                    "fileUri": file_uri
                   }
                 }]}
     # Add current prompt to the users conversation list, then generate contents
@@ -62,17 +62,20 @@ def gemini_request(User, instruction, encoded_string, APIKEY):
     contents = User.conversation
 
     data = {"system_instruction": {"parts": { "text": instruction}}, "contents": contents, "generationConfig": {"response_mime_type": "application/json",}}
+    try: 
+        response = requests.post(
+            f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={APIKEY}',
+            headers=headers,
+            data=json.dumps(data),
+        )
+        response.raise_for_status()
 
-    response = requests.post(
-        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={APIKEY}',
-        headers=headers,
-        data=json.dumps(data),
-    )
+        dictionary = response.json()
 
-    dictionary = response.json()
-
-    model_responses = json.loads(dictionary['candidates'][0]['content']['parts'][0]['text'])
-
-    return model_responses
+        model_responses = json.loads(dictionary['candidates'][0]['content']['parts'][0]['text'])
+        return model_responses
+    except requests.exceptions.RequestException as error:
+        print(f"An error occurred: {error}")
+        return None
 
 
