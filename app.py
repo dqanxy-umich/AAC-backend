@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from user import User
 import google.generativeai as genai
 import threading
@@ -30,7 +30,7 @@ def page_not_found(error):
 @app.route('/copilot')
 @cross_origin()
 def copilot():
-  user_input = "I agree! Let's"
+  user_input= request.args.get('input')
   input_path = get_recording()
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_path)
@@ -159,6 +159,7 @@ def predict_face_vis():
 # temporary route using python sdk, will switch to JSON using Curl
 #integrate responses with user info
 @app.route('/suggest-responses')
+@cross_origin()
 def suggest_responses():
     # Example User instance
     user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
