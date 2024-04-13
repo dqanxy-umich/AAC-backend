@@ -156,12 +156,13 @@ def predict_face_vis():
 @cross_origin()
 def suggest_responses():
     # Example User instance
-    user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
+    user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student', [])
 
     #  'audio/sample_turn2.wav'#
     audio_path = 'audio/sample_turn2.wav' # get_recording()
     audio_file = genai.upload_file(path=audio_path)
     audio_uri = audio_file.uri
+    print(audio_uri)
 
     # Gets an image from predict_face_vis
     photo_file = predict_face_vis()

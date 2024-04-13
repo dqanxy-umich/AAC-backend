@@ -47,25 +47,46 @@ def build_instruction(User, num_responses):
     return instruction
 
 def gemini_request(User, instruction, audio_uri, photo_uri, APIKEY):
+    import requests
+    import json
+
     headers = {
         'Content-Type': 'application/json',
     }
     prompt = "Return a list of phrases that can be used in response to the conversational input using this JSON schema:\n                  {type: object, properties: { phrase: {type: string}}}"
-    user = {"role":"user", "parts":[{"text": prompt},
-                { "fileData": {
+    user = {
+        "role": "user",
+        "parts": [
+            {"text": prompt},
+            {
+                "fileData": {
                     "mimeType": "audio/wav",
                     "fileUri": audio_uri
-                  },
-                  "fileData": {
+                }
+            },
+            {
+                "fileData": {
                     "mimeType": "image/jpeg",
                     "fileUri": photo_uri
-                  },
-                }]}
+                }
+            }
+        ]
+    }
     # Add current prompt to the users conversation list, then generate contents
     User.conversation.append(user)
     contents = User.conversation
 
-    data = {"system_instruction": {"parts": { "text": instruction}}, "contents": contents, "generationConfig": {"response_mime_type": "application/json",}}
+    data = {
+        "system_instruction": {
+            "parts": [
+                {"text": instruction}
+            ]
+        },
+        "contents": contents,
+        "generationConfig": {
+            "response_mime_type": "application/json",
+        }
+    }
     try: 
         response = requests.post(
             f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={APIKEY}',
@@ -81,5 +102,3 @@ def gemini_request(User, instruction, audio_uri, photo_uri, APIKEY):
     except requests.exceptions.RequestException as error:
         print(f"An error occurred: {error}")
         return None
-
-
