@@ -80,6 +80,6 @@ def gemini_request(User, instruction, audio_uri, photo_uri, APIKEY):
         return model_responses
     except requests.exceptions.RequestException as error:
         print(f"An error occurred: {error}")
-        return None
+        return None   
 
 
