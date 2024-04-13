@@ -1,6 +1,9 @@
 from flask import Flask
 import google.generativeai as genai
 
+APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
+genai.configure(api_key=APIKEY)
+
 app = Flask(__name__)
 
 @app.route('/test')
@@ -12,7 +15,9 @@ def page_not_found(error):
     return '404 Not Found', 404
 
 @app.route('/copilot')
-def copilot(user_input, input_path):
+def copilot():
+  user_input = "I agree! Let's"
+  input_path = "sample_turn2.wav"
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_path)
   prompt_final = f"Finish the following after '...': {user_input}..."
@@ -35,4 +40,5 @@ def predict_face_mood(input_file):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
