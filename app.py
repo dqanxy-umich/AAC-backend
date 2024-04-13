@@ -30,13 +30,17 @@ def page_not_found(error):
 
 @app.route('/copilot')
 @cross_origin(origin="*")
-def copilot():
+def copilot(useAudio=False):
   user_input= request.args.get('input')
-  input_path = get_recording();
-  model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
-  new_up = genai.upload_file(path=input_path)
+  model = genai.GenerativeModel('gemini-pro')
   prompt_final = f"Finish the following after '...': {user_input}..."
-  response_final = model.generate_content([new_up, prompt_final])
+  if useAudio:
+    input_path = get_recording();
+    new_up = genai.upload_file(path=input_path)
+    model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
+    response_final = model.generate_content([new_up, prompt_final])
+  else:
+    response_final = model.generate_content(prompt_final)
   result_string = (response_final.text).replace(f'...{user_input}', "")
   result_string = (response_final.text).replace(f'... {user_input}', "")
   result_string = re.sub(r'[^\w\s]','',result_string)
