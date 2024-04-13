@@ -155,7 +155,7 @@ def predict_face_vis():
 # temporary route using python sdk, will switch to JSON using Curl
 #integrate responses with user info
 @app.route('/suggest-responses')
-# @cross_origin()
+@cross_origin()
 def suggest_responses():
     # Example User instance
     user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
