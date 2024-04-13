@@ -156,10 +156,11 @@ def predict_face_vis():
   return response_final.text
 
 # temporary route using python sdk, will switch to JSON using Curl
+#integrate responses with user info
 @app.route('/suggest-responses')
 def suggest_responses():
     # Example User instance
-    user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
+    user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
 
     # audio input 
     audio_path = 'audio/sample_turn2.wav'# get_recording()
@@ -167,9 +168,9 @@ def suggest_responses():
 
     # text input
     text_input = "what are you doing after school?"
-
     # prompt and instruction
-    prompt = "Respond to the person speaking to you."
+    prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}."
+    #sushrita addition - try parsing the instruction and user context together
     instruction = helper.build_instruction(user, 10)
 
     # build model
