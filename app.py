@@ -6,6 +6,7 @@ import wave
 import time
 import cv2
 import sys
+import logging
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
@@ -117,24 +118,32 @@ def record_thread():
     
 #make function to predict one word output/categorization
 @app.route('/video-predict')
-def predict_face_mood():
+def predict_face_mood_2():
   input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/frown.jpeg'
+
+
 #render camera on spot
 @app.route('/cam-capture')
 def predict_face_vis():
   camera = cv2.VideoCapture(0)
-  sys.wait(0.1)
+  logging.info("Camera opened")
+  time.sleep(1)
   ret, frame = camera.read()
+  logging.info("grabbed frame")
   camera.release()
+  logging.info("camera done")
   fshape = frame.shape
   fheight = fshape[0]
   fwidth = fshape[1]
-  fourcc = cv2.VideoWriter_fourcc(*'XVID')
-  out = cv2.VideoWriter('output.avi',fourcc, 20.0, (fwidth,fheight))
+  #fourcc = cv2.VideoWriter_fourcc(*'XVID')
+  logging.info("made video file")
+  #out = cv2.VideoWriter('output.avi',fourcc, 20.0, (fwidth,fheight))
+  cv2.imwrite('captured_image.jpg', frame)
+  logging.info("successdully written")
 
 
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
-  new_up = genai.upload_file(path='output.avi')
+  new_up = genai.upload_file(path='/Users/sushritarakshit/Documents/GitHub/AAC-backend/captured_image.jpg')
   prompt_final = "Describe the person's facial expression. Give one word response, not generic."
   response_final = model.generate_content([new_up, prompt_final], stream = False)
   print(response_final.text)

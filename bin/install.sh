@@ -15,4 +15,6 @@ pip install flask
 
 pip install -q -U google-generativeai
 
+pip install opencv-python
+
 
