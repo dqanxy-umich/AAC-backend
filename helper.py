@@ -46,7 +46,7 @@ def build_instruction(User, num_responses):
 
     return instruction
 
-def gemini_request(User, instruction, file_uri, APIKEY):
+def gemini_request(User, instruction, audio_uri, photo_uri, APIKEY):
     headers = {
         'Content-Type': 'application/json',
     }
@@ -54,8 +54,12 @@ def gemini_request(User, instruction, file_uri, APIKEY):
     user = {"role":"user", "parts":[{"text": prompt},
                 { "fileData": {
                     "mimeType": "audio/wav",
-                    "fileUri": file_uri
-                  }
+                    "fileUri": audio_uri
+                  },
+                  "fileData": {
+                    "mimeType": "image/jpeg",
+                    "fileUri": photo_uri
+                  },
                 }]}
     # Add current prompt to the users conversation list, then generate contents
     User.conversation.append(user)
