@@ -144,14 +144,11 @@ def predict_face_vis():
   #fourcc = cv2.VideoWriter_fourcc(*'XVID')
   #out = cv2.VideoWriter('output.avi',fourcc, 20.0, (fwidth,fheight))
   cv2.imwrite('captured_image.jpg', frame)
+  logging.info("successdully written")
+  new_up = genai.upload_file(path='captured_image.jpg')
 
-
-  model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
-  new_up = genai.upload_file(path='/Users/sushritarakshit/Documents/GitHub/AAC-backend/captured_image.jpg')
-  prompt_final = "Describe the person's facial expression. Give one word response, not generic."
-  response_final = model.generate_content([new_up, prompt_final], stream = False)
-  print(response_final.text)
-  return response_final.text
+  return new_up
+  
 
 # temporary route using python sdk, will switch to JSON using Curl
 #integrate responses with user info
@@ -160,19 +157,24 @@ def predict_face_vis():
 def suggest_responses():
     # Example User instance
     user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
+
     #  'audio/sample_turn2.wav'#
-    audio_path = get_recording()
-    new_file = genai.upload_file(path=audio_path)
-    file_uri = new_file.uri
+    audio_path = 'audio/sample_turn2.wav' # get_recording()
+    audio_file = genai.upload_file(path=audio_path)
+    audio_uri = audio_file.uri
+
+    # Gets an image from predict_face_vis
+    photo_file = predict_face_vis()
+    photo_uri = photo_file.uri
 
     # build instruction based on user data
     instruction = helper.build_instruction(user, 10)
     
     # generate HTTP request, retrieve model response
-    responses = helper.gemini_request(User, instruction, file_uri, APIKEY)
+    responses = helper.gemini_request(User, instruction, audio_uri, photo_uri, APIKEY)
 
     return responses
-    
+
 
 
 if __name__ == '__main__':
