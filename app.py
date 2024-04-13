@@ -11,6 +11,7 @@ import logging
 import helper
 import base64
 from flask_cors import CORS, cross_origin
+import re
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
@@ -38,6 +39,7 @@ def copilot():
   response_final = model.generate_content([new_up, prompt_final])
   result_string = (response_final.text).replace(f'...{user_input}', "")
   result_string = (response_final.text).replace(f'... {user_input}', "")
+  result_string = re.sub(r'[^\w\s]','',result_string)
   return result_string
 
 #make function to predict one word output/categorization
@@ -133,20 +135,15 @@ def predict_face_mood_2():
 @app.route('/cam-capture')
 def predict_face_vis():
   camera = cv2.VideoCapture(0)
-  logging.info("Camera opened")
   time.sleep(1)
   ret, frame = camera.read()
-  logging.info("grabbed frame")
   camera.release()
-  logging.info("camera done")
   fshape = frame.shape
   fheight = fshape[0]
   fwidth = fshape[1]
   #fourcc = cv2.VideoWriter_fourcc(*'XVID')
-  logging.info("made video file")
   #out = cv2.VideoWriter('output.avi',fourcc, 20.0, (fwidth,fheight))
   cv2.imwrite('captured_image.jpg', frame)
-  logging.info("successdully written")
 
 
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
@@ -192,33 +189,6 @@ def suggest_responses():
 
     return responses
 
-@app.route('/full-context')
-def gen_full_context():
-    #get visuals
-    opponent_mood = predict_face_vis()
-    #opponent_mood = 'infurious'
-    user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
-
-    # audio input 
-    #audio_path = 'audio/sample_turn2.wav'# get_recording()
-    #audio_file = genai.upload_file(path=audio_path)
-    audio_file = get_recording() #-> just get the recording
-
-
-    prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}. Also keep in mind the opposing speaker feels like this: {opponent_mood}"
-    instruction = helper.build_instruction(user, 10)
-
-    model = genai.GenerativeModel(
-        'models/gemini-1.5-pro-latest',
-        system_instruction=instruction
-    )
-
-    response = model.generate_content([prompt, audio_file])
-    logging.info("got response")
-    responses = response.text.replace('\n', '').strip().split(";")
-    logging.info("split response")
-
-    return responses
 
 
 
