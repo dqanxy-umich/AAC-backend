@@ -58,7 +58,7 @@ def gemini_request(User, instruction, encoded_string, APIKEY):
                   }
                 }]}
     # Add current prompt to the users conversation list, then generate contents
-    User.conversation.append[user]
+    User.conversation.append(user)
     contents = User.conversation
 
     data = {"system_instruction": {"parts": { "text": instruction}}, "contents": contents, "generationConfig": {"response_mime_type": "application/json",}}
