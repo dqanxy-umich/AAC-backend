@@ -160,7 +160,7 @@ def suggest_responses():
 
     #  'audio/sample_turn2.wav'#
     audio_path = get_recording()
-    # audio_path = 'audio/sample_turn2.wav' # get_recording()
+    # audio_path = get_recording()
     audio_file = genai.upload_file(path=audio_path)
     audio_uri = audio_file.uri
 
