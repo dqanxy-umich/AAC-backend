@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from user import User
 import google.generativeai as genai
 import threading
@@ -10,12 +10,14 @@ import sys
 import logging
 import helper
 import base64
-
+from flask_cors import CORS, cross_origin
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/test')
 def test():
@@ -26,8 +28,9 @@ def page_not_found(error):
     return '404 Not Found', 404
 
 @app.route('/copilot')
+@cross_origin()
 def copilot():
-  user_input = "I agree! Let's"
+  user_input= request.args.get('input')
   input_path = get_recording()
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_path)
@@ -39,7 +42,7 @@ def copilot():
 
 #make function to predict one word output/categorization
 @app.route('/face-predict')
-def predict_face_mood():
+def face_predict():
   input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/images/frown.jpeg'
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_file)
@@ -154,7 +157,9 @@ def predict_face_vis():
   return response_final.text
 
 # temporary route using python sdk, will switch to JSON using Curl
+#integrate responses with user info
 @app.route('/suggest-responses')
+@cross_origin()
 def suggest_responses():
     # Example User instance
     user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
@@ -170,6 +175,30 @@ def suggest_responses():
     responses = helper.gemini_request(User, instruction, file_uri, APIKEY)
 
     return responses
+
+@app.route('/full-context')
+def gen_full_context():
+    #get visuals
+    opponent_mood = predict_face_vis()
+    #opponent_mood = 'infurious'
+    user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
+
+    audio_path = get_recording()
+    new_file = genai.upload_file(path=audio_path)
+    file_uri = new_file.uri
+
+    # prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}. Also keep in mind the opposing speaker feels like this: {opponent_mood}"
+    instruction = helper.build_instruction(user, 10)
+    
+    # generate HTTP request, retrieve model response
+    responses = helper.gemini_request(User, instruction, file_uri, APIKEY)
+    
+    return responses
+
+
+
+    
+
 
 if __name__ == '__main__':
     global kill_flag
