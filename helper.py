@@ -1,3 +1,7 @@
+import requests
+import json
+
+
 def build_instruction(User, num_responses):
     """
     Builds the instruction string for Gemini based on User profile information,
@@ -41,3 +45,34 @@ def build_instruction(User, num_responses):
     )
 
     return instruction
+
+def gemini_request(User, instruction, encoded_string, APIKEY):
+    headers = {
+        'Content-Type': 'application/json',
+    }
+    prompt = "Return a list of phrases that can be used in response to the conversational input using this JSON schema:\n                  {type: object, properties: { phrase: {type: string}}}"
+    user = {"role":"user", "parts":[{"text": prompt},
+                { "inlineData": {
+                    "mimeType": "audio/wav",
+                    "data": encoded_string
+                  }
+                }]}
+    # Add current prompt to the users conversation list, then generate contents
+    User.conversation.append(user)
+    contents = User.conversation
+
+    data = {"system_instruction": {"parts": { "text": instruction}}, "contents": contents, "generationConfig": {"response_mime_type": "application/json",}}
+
+    response = requests.post(
+        f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={APIKEY}',
+        headers=headers,
+        data=json.dumps(data),
+    )
+
+    dictionary = response.json()
+
+    model_responses = json.loads(dictionary['candidates'][0]['content']['parts'][0]['text'])
+
+    return model_responses
+
+

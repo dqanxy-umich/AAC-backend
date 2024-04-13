@@ -9,6 +9,7 @@ import cv2
 import sys
 import logging
 import helper
+import base64
 from flask_cors import CORS, cross_origin
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
@@ -162,26 +163,20 @@ def suggest_responses():
     # Example User instance
     user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
 
-    # audio input 
     audio_path = 'audio/sample_turn2.wav'# get_recording()
-    audio_file = genai.upload_file(path=audio_path)
 
-    # text input
-    text_input = "what are you doing after school?"
+    with open(audio_path, "rb") as wav_file:
+        wav_bytes = wav_file.read()
+        base64_bytes = base64.b64encode(wav_bytes)
+        encoded_string = base64_bytes.decode("utf-8")
+        
     # prompt and instruction
-    prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}."
-    #sushrita addition - try parsing the instruction and user context together
+    # prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}."
+   
     instruction = helper.build_instruction(user, 10)
-
-    # build model
-    model = genai.GenerativeModel(
-        'models/gemini-1.5-pro-latest',
-        system_instruction=instruction
-    )
-
-    # generate responses on prompt and input, clean them 
-    response = model.generate_content([prompt, audio_file])
-    responses = response.text.replace('\n', '').strip().split(";")
+    
+    # generate HTTP request, retrieve model response
+    responses = helper.gemini_request(User, instruction, encoded_string, APIKEY)
 
     return responses
 
