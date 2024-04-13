@@ -158,40 +158,20 @@ def predict_face_vis():
 @app.route('/suggest-responses')
 @cross_origin()
 def suggest_responses():
-    
     # Example User instance
-    user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
+    user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
+    #  'audio/sample_turn2.wav'#
+    audio_path = get_recording()
+    new_file = genai.upload_file(path=audio_path)
+    file_uri = new_file.uri
 
-        
-    # prompt and instruction
-    # prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}."
-   
+    # build instruction based on user data
     instruction = helper.build_instruction(user, 10)
+    
     # generate HTTP request, retrieve model response
-    # audio input 
-    #audio_path = 'audio/sample_turn2.wav'# get_recording()
-    #audio_file = genai.upload_file(path=audio_path)
-    audio_file = get_recording() #-> just get the recording
-
-
-    prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}."
-    instruction = helper.build_instruction(user, 10)
-
-    model = genai.GenerativeModel(
-        'models/gemini-1.5-pro-latest',
-        system_instruction=instruction
-    )
-
-    response = model.generate_content([prompt, audio_file])
-    logging.info("got response")
-    responses = response.text.replace('\n', '').strip().split(";")
-    logging.info("split response")
+    responses = helper.gemini_request(User, instruction, file_uri, APIKEY)
 
     return responses
-
-
-
-
     
 
 
