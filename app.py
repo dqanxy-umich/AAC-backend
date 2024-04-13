@@ -1,4 +1,5 @@
 from flask import Flask
+from user import User
 import google.generativeai as genai
 import threading
 import pyaudio
@@ -7,6 +8,7 @@ import time
 import cv2
 import sys
 import logging
+import helper
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
@@ -148,6 +150,35 @@ def predict_face_vis():
   response_final = model.generate_content([new_up, prompt_final], stream = False)
   print(response_final.text)
   return response_final.text
+
+# temporary route using python sdk, will switch to JSON using Curl
+@app.route('/suggest-responses')
+def suggest_responses():
+    # Example User instance
+    user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
+
+    # audio input 
+    audio_path = 'audio/sample_turn2.wav'# get_recording()
+    audio_file = genai.upload_file(path=audio_path)
+
+    # text input
+    text_input = "what are you doing after school?"
+
+    # prompt and instruction
+    prompt = "Respond to the person speaking to you."
+    instruction = helper.build_instruction(user, 10)
+
+    # build model
+    model = genai.GenerativeModel(
+        'models/gemini-1.5-pro-latest',
+        system_instruction=instruction
+    )
+
+    # generate responses on prompt and input, clean them 
+    response = model.generate_content([prompt, audio_file])
+    responses = response.text.replace('\n', '').strip().split(";")
+
+    return responses
 
 if __name__ == '__main__':
     global kill_flag
