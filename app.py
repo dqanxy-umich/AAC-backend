@@ -165,20 +165,12 @@ def suggest_responses():
     # Example User instance
     user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
 
-    audio_path = 'audio/sample_turn2.wav'# get_recording()
-
-    with open(audio_path, "rb") as wav_file:
-        wav_bytes = wav_file.read()
-        base64_bytes = base64.b64encode(wav_bytes)
-        encoded_string = base64_bytes.decode("utf-8")
         
     # prompt and instruction
     # prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}."
    
     instruction = helper.build_instruction(user, 10)
-    
     # generate HTTP request, retrieve model response
-    responses = helper.gemini_request(User, instruction, encoded_string, APIKEY)
     # audio input 
     #audio_path = 'audio/sample_turn2.wav'# get_recording()
     #audio_file = genai.upload_file(path=audio_path)
@@ -208,9 +200,9 @@ def gen_full_context():
     user = User("Sushrita", 32, "Female", ['soccer', 'coding', 'poker'], 'student')
 
     # audio input 
-    audio_path = 'audio/sample_turn2.wav'# get_recording()
-    audio_file = genai.upload_file(path=audio_path)
-    #audio_file = get_recording() #-> just get the recording
+    #audio_path = 'audio/sample_turn2.wav'# get_recording()
+    #audio_file = genai.upload_file(path=audio_path)
+    audio_file = get_recording() #-> just get the recording
 
 
     prompt = f"Respond to the person speaking. Your response should pertain to a style matching the User's demographics: {user.name}, {user.age}, {user.gender}, {user.hobbies}, {user.occupation}. Also keep in mind the opposing speaker feels like this: {opponent_mood}"
