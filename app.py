@@ -5,6 +5,9 @@ import pyaudio
 import wave
 import time
 
+APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
+genai.configure(api_key=APIKEY)
+
 app = Flask(__name__)
 
 @app.route('/test')
@@ -16,7 +19,9 @@ def page_not_found(error):
     return '404 Not Found', 404
 
 @app.route('/copilot')
-def copilot(user_input, input_path):
+def copilot():
+  user_input = "I agree! Let's"
+  input_path = "sample_turn2.wav"
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_path)
   prompt_final = f"Finish the following after '...': {user_input}..."
@@ -27,7 +32,8 @@ def copilot(user_input, input_path):
 
 #make function to predict one word output/categorization
 @app.route('/face-predict')
-def predict_face_mood(input_file):
+def predict_face_mood():
+  input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/frown.jpeg'
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_file)
   prompt_final = "Describe the person's facial expression. Give one word response, not generic."
@@ -103,6 +109,16 @@ def record_thread():
 
 
     
+#make function to predict one word output/categorization
+@app.route('/video-predict')
+def predict_face_mood():
+  input_file = '/Users/sushritarakshit/Documents/GitHub/AAC-backend/frown.jpeg'
+  model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
+  new_up = genai.upload_file(path=input_file)
+  prompt_final = "Describe the person's facial expression. Give one word response, not generic."
+  response_final = model.generate_content([new_up, prompt_final], stream = False)
+  print(response_final.text)
+  return response_final.text
 
 if __name__ == '__main__':
     global kill_flag
@@ -115,8 +131,10 @@ if __name__ == '__main__':
             time.sleep(.1)
     except:
         kill_flag = True
+        print("Enabled kill flag.")
         record_thread.join()
         print("Threads killed.")
         exit(0)
+
 
 
