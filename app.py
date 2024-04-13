@@ -29,10 +29,10 @@ def page_not_found(error):
     return '404 Not Found', 404
 
 @app.route('/copilot')
-@cross_origin()
+@cross_origin(origin="*")
 def copilot():
   user_input= request.args.get('input')
-  input_path = get_recording()
+  input_path = 'audio/sample_turn2.wav'
   model = genai.GenerativeModel('models/gemini-1.5-pro-latest')
   new_up = genai.upload_file(path=input_path)
   prompt_final = f"Finish the following after '...': {user_input}..."
@@ -82,7 +82,7 @@ def record_thread():
     global kill_flag
     CHUNK = 1024
     FORMAT = pyaudio.paInt16
-    CHANNELS = 2
+    CHANNELS = 1
     RATE = 44100
     RECORD_SECONDS = 5
     WAVE_OUTPUT_FILENAME = "output.wav"
@@ -134,7 +134,7 @@ def predict_face_mood_2():
 #render camera on spot
 @app.route('/cam-capture')
 def predict_face_vis():
-  camera = cv2.VideoCapture(0)
+  camera = cv2.VideoCapture(1)
   time.sleep(1)
   ret, frame = camera.read()
   camera.release()
@@ -153,13 +153,14 @@ def predict_face_vis():
 # temporary route using python sdk, will switch to JSON using Curl
 #integrate responses with user info
 @app.route('/suggest-responses')
-@cross_origin()
+@cross_origin(origins="*")
 def suggest_responses():
     # Example User instance
     user = User("Jean", 20, "Male", ['soccer', 'coding', 'poker'], 'student')
 
     #  'audio/sample_turn2.wav'#
-    audio_path = 'audio/sample_turn2.wav' # get_recording()
+    audio_path = get_recording()
+    # audio_path = 'audio/sample_turn2.wav' # get_recording()
     audio_file = genai.upload_file(path=audio_path)
     audio_uri = audio_file.uri
 
