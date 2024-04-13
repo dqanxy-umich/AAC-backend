@@ -5,6 +5,7 @@ import pyaudio
 import wave
 import time
 import cv2
+import sys
 
 APIKEY = "AIzaSyAXxUj2bE3FXnWy4OegQUXibwCAKVhSvXA"
 genai.configure(api_key=APIKEY)
@@ -122,6 +123,7 @@ def predict_face_mood():
 @app.route('/cam-capture')
 def predict_face_vis():
   camera = cv2.VideoCapture(0)
+  sys.wait(0.1)
   ret, frame = camera.read()
   camera.release()
   fshape = frame.shape
