@@ -33,7 +33,7 @@ def page_not_found(error):
 def copilot(useAudio=False):
   user_input= request.args.get('input')
   model = genai.GenerativeModel('gemini-pro')
-  prompt_final = f"Finish the following after '...': {user_input}..."
+  prompt_final = f"You are in a conversation. Finish the following after '...': {user_input}..."
   if useAudio:
     input_path = get_recording();
     new_up = genai.upload_file(path=input_path)
